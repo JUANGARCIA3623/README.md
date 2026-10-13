@@ -1,3 +1,41 @@
+# Repository Licensing & Usage Terms
+
+Copyright (C) 2026 Juan Valentín García Espinoza (ID: gaej940310hsprsn02). All rights reserved.
+
+This repository uses a split-licensing structure. Please review the terms below to determine how specific files may be used.
+
+---
+
+### 1. Default Open Source License (GPL-3.0)
+Except as listed in Section 2, all source code and documentation in this repository are licensed under the **GNU General Public License v3.0 or later** (GPL-3.0-or-later).
+
+* Full license text: https://www.gnu.org/licenses/gpl-3.0.en.html
+* SPDX Identifier: `GPL-3.0-or-later`
+
+You may copy, modify, and redistribute these GPL-covered files, provided derivative works remain under GPL-3.0 and retain copyright notices.
+
+---
+
+### 2. Proprietary Files (Exceptions)
+Files explicitly listed in [`PROPRIETARY_FILES.md`](./PROPRIETARY_FILES.md) (or [`PROPRIETARY_README.md`](./PROPRIETARY_README.md)) are **not** licensed under the GPL-3.0. They remain **All Rights Reserved** by Juan Valentín García Espinoza (ID: gaej940310hsprsn02).
+
+* These files may not be copied, modified, or redistributed without explicit written permission.
+* In the event of a conflict between a file's location and `PROPRIETARY_FILES.md`, the proprietary designation in `PROPRIETARY_FILES.md` takes precedence.
+
+---
+
+### 3. Third-Party Components
+Third-party modules or libraries included here carry their own original licenses (found in their respective headers or a [`THIRD_PARTY_LICENSES.md`](./THIRD_PARTY_LICENSES.md) file). Their original terms apply.
+
+---
+
+### 4. Commercial Enquiries & Permissions
+To request permission for proprietary components, reach out via the contacts listed in [`SECURITY.md`](./SECURITY.md).
+
+---
+
+### 5. Contributions
+By submitting pull requests or patches, you agree that your contributions will be licensed under GPL-3.0 unless explicitly agreed otherwise in writing prior to merging.
 <div align="center">
     <a href="https://www.php.net">
         <img
