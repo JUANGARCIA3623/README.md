@@ -1,3 +1,88 @@
+<?php
+// =============================================================================
+// SBE-GAEJ Suite — Euniprincez Digital v2026
+// Módulo de Sistema / Seguridad Perimétrica (Backend LicenciaAlpha)
+//
+// Copyright (c) 2026 Juan Valentín García Espinoza
+// ID: GAEJ940310HSPRSN02
+// Licencia: MIT (Consulte el archivo LICENSE para más detalles)
+// =============================================================================
+
+header("Content-Type: application/json; charset=UTF-8");
+header("Access-Control-Allow-Methods: POST");
+
+// 1. Validación Perimétrica (Protección contra Timing Attacks)
+$headers = getallheaders();
+$x_internal_token = $headers['x-internal-token'] ?? '';
+$secret_api_key = getenv('INTERNAL_API_SECRET'); // Cargar desde el entorno
+
+// Validación de tiempo constante (Blindaje Euniprincez)
+if (empty($x_internal_token) || !hash_equals($secret_api_key, $x_internal_token)) {
+    http_response_code(403);
+    echo json_encode(["status" => "error", "message" => "Auditoría Fallida: Acceso denegado al perímetro de seguridad."]);
+    exit();
+}
+
+// 2. Configuración de conexión a Base de Datos (Segura)
+define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
+define('DB_USER', getenv('DB_USER') ?: 'euniprincez_admin');
+define('DB_PASS', getenv('DB_PASS')); // NUNCA hardcodear en producción
+define('DB_NAME', 'digital_v2026');
+define('SECRET_SALT', getenv('SECRET_SALT')); 
+
+// Nota: Configurado para MySQL (mysqli) según tu script original
+$conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+
+if ($conn->connect_error) {
+    http_response_code(500);
+    echo json_encode(["status" => "error", "message" => "Fallo de conexión interna."]);
+    exit();
+}
+
+// 3. Captura y decodificación de datos JSON provenientes de Streamlit
+$inputData = file_get_contents("php://input");
+$data = json_decode($inputData, true);
+
+if (!isset($data['rfc']) || !isset($data['serial_number']) || !isset($data['es_valido'])) {
+    http_response_code(400);
+    echo json_encode(["status" => "error", "message" => "Parámetros de auditoría incompletos."]);
+    exit();
+}
+
+// Sanitización estricta por expresiones regulares
+$rfc = preg_replace("/[^A-Z0-9]/", "", strtoupper($data['rfc'])); 
+$serial = preg_replace("/[^0-9]/", "", $data['serial_number']);   
+$esValido = filter_var($data['es_valido'], FILTER_VALIDATE_BOOLEAN);
+
+// 4. Generación del Hash de Integridad Criptográfica (Factor 2x -> 64 chars)
+$estadoTexto = $esValido ? 'ACTIVO_VIGENTE' : 'BLOQUEADO_EXPIRADO';
+$hashControl = hash('sha256', $rfc . $serial . $estadoTexto . SECRET_SALT);
+
+// 5. Actualización en la BD de la LicenciaAlpha mediante Sentencias Preparadas
+$stmt = $conn->prepare("UPDATE licencias_alpha SET estatus = ?, csd_serial = ?, hash_auditoria = ?, ultima_verificacion = NOW() WHERE rfc_titular = ?");
+$stmt->bind_param("ssss", $estadoTexto, $serial, $hashControl, $rfc);
+
+if ($stmt->execute()) {
+    if ($stmt->affected_rows > 0) {
+        echo json_encode([
+            "status" => "success",
+            "message" => "LicenciaAlpha actualizada correctamente para el RFC {$rfc}.",
+            "codigo_hash" => substr($hashControl, 0, 16) . "..." // Enmascaramiento para UI
+        ]);
+    } else {
+        echo json_encode([
+            "status" => "warning", 
+            "message" => "No se encontró una licencia registrada o activa para el RFC proporcionado."
+        ]);
+    }
+} else {
+    http_response_code(500);
+    echo json_encode(["status" => "error", "message" => "Error crítico al registrar la firma del sello."]);
+}
+
+$stmt->close();
+$conn->close();
+?>
 <div align="center">
     <a href="https://www.php.net">
         <img
