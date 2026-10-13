@@ -1,0 +1,111 @@
+import os
+import requests
+from urllib.parse import urljoin
+from lxml import etree
+
+# URL base y plantilla principal oficial del SAT
+BASE_URL = "http://www.sat.gob.mx/sitio_internet/cfd/4/cadenaoriginal_4_0/"
+MAIN_XSLT = "cadenaoriginal_4_0.xslt"
+MAIN_URL = urljoin(BASE_URL, MAIN_XSLT)
+
+# Directorio de destino local
+OUTPUT_DIR = "sat_xslt"
+
+# Cabecera para simular un navegador y evitar bloqueos
+HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+}
+
+
+def descargar_xslt_recursivo(url: str, output_dir: str, procesados: set = None) -> None:
+    """Descarga un archivo XSLT y busca recursivamente otros archivos <xsl:include>
+
+    o <xsl:import> para guardarlos localmente.
+    """
+    if procesados is None:
+        procesados = set()
+
+    if url in procesados:
+        return
+
+    procesados.add(url)
+    filename = url.split("/")[-1]
+    filepath = os.path.join(output_dir, filename)
+
+    print(f"📡 Descargando: {filename}...")
+
+    try:
+        response = requests.get(url, headers=HEADERS, timeout=15)
+        response.raise_for_status()
+
+        # Guardar el archivo en disco
+        with open(filepath, "wb") as f:
+            f.write(response.content)
+
+        # Parsear el XSLT para buscar inclusiones de otros XSLT
+        tree = etree.fromstring(response.content)
+        namespaces = {"xsl": "http://www.w3.org/1999/XSL/Transform"}
+
+        # Buscar nodos <xsl:include href="..."> y <xsl:import href="...">
+        import_nodes = tree.xpath(
+            "//xsl:include/@href | //xsl:import/@href", namespaces=namespaces
+        )
+
+        for relative_href in import_nodes:
+            # Construir la URL completa de cada dependencia
+            child_url = urljoin(url, relative_href)
+            descargar_xslt_recursivo(child_url, output_dir, procesados)
+
+    except Exception as e:
+        print(f"❌ Error al procesar {url}: {str(e)}")
+
+
+def actualizar_plantillas_sat():
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    print(
+        f"🚀 Iniciando descarga de plantillas XSLT desde el SAT a '{OUTPUT_DIR}'...\n"
+    )
+    descargar_xslt_recursivo(MAIN_URL, OUTPUT_DIR)
+    print("\n✅ Proceso completado. Todas las plantillas locales están listas.")
+
+
+if __name__ == "__main__":
+    actualizar_plantillas_sat()
+
+name
+
+: Python Package using Conda
+
+on: [push]
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 5
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v3
+      with:
+       
+      python-version: '3.10'
+    - name: Add conda to system path
+      run: |
+        # $CONDA is an environment variable pointing to the root of the miniconda directory
+        echo $CONDA/bin >> $GITHUB_PATH
+    - name: Install dependencies
+      run: |
+        conda env update --file environment.yml --name base
+    - name: Lint with flake8
+      run: |
+        conda install flake8
+        # stop the build if there are Python syntax errors or undefined names
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+    - name: Test with pytest
+      run: |
+        conda install pytest
+        pytest
