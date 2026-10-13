@@ -1,4 +1,4 @@
-# README.md principal para dejar clara la autoría, el estado de tus commits y la funcionalidad agregada.
+# README.md principal autoría, commits funcionalidad agregada.
 Plantilla sugerida para README.md:
 # Custom php-src — SBE-GAEJ 2026 Core Ecosystem
 
