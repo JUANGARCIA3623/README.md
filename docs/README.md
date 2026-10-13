@@ -124,6 +124,12 @@ your browser.
 The files in this documentation are formatted using the[``toolbox``](https://github.com/dzhu/rstfmt) tool.
 `
 bash
-`
-This tool is not perfect. It breaks on custom directives, so we might switch to
-either a fork or something else in the future.
+`# 1. Crear o guardar el archivo en tu directorio de trabajo (ej. bin o raíz)
+nano toolbox.sh
+# (Pegas tu código, guardas con Ctrl+O y sales con Ctrl+X)
+
+# 2. Darle permisos de ejecución globales para tu usuario
+chmod +x toolbox.sh
+
+# 3. Opcional: Moverlo a tu PATH para llamarlo desde cualquier carpeta con solo escribir 'toolbox'
+mv toolbox.sh $PREFIX/bin/toolbox
