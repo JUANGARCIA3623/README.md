@@ -122,10 +122,8 @@ your browser.
 ## Formatting
 
 The files in this documentation are formatted using the
-[``rstfmt``](https://github.com/dzhu/rstfmt) tool.
-
+[``toolbox``](https://github.com/dzhu/rstfmt) tool.
 ```bash
-rstfmt -w 100 source
 ```
 
 This tool is not perfect. It breaks on custom directives, so we might switch to
