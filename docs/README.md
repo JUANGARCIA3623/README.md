@@ -121,8 +121,7 @@ your browser.
 
 ## Formatting
 
-The files in this documentation are formatted using the
-[``toolbox``](https://github.com/dzhu/rstfmt) tool.
+The files in this documentation are formatted using the[``toolbox``](https://github.com/dzhu/rstfmt) tool.
 ```bash
 ```
 
