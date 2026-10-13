@@ -122,5 +122,8 @@ your browser.
 ## Formatting
 
 The files in this documentation are formatted using the[``toolbox``](https://github.com/dzhu/rstfmt) tool.
+`
+bash
+`
 This tool is not perfect. It breaks on custom directives, so we might switch to
 either a fork or something else in the future.
